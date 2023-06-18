@@ -61,41 +61,95 @@ fn encrypt(bitmask: CheatCodes) -> u32 {
     result ^ 0xA5B4C3D2
 }
 
-// Test case: All cheat codes unlocked.
-#[test]
-fn test_all_cheats() {
-    let cm_password = encrypt(CheatCodes::all());
-    assert_eq!(cm_password, 1514913837);
-}
-
-// Test case: No cheat codes unlocked.
-#[test]
-fn test_no_cheats() {
-    let cm_password = encrypt(CheatCodes::empty());
-    assert_eq!(cm_password, 2780087250);
-}
-
-// Test case: All warp cheat codes unlocked.
-#[test]
-fn test_all_warp_cheats() {
-    let cm_password = encrypt(
-        CheatCodes::WARP_LEVEL1
-            | CheatCodes::WARP_LEVEL2
-            | CheatCodes::WARP_LEVEL3
-            | CheatCodes::WARP_LEVEL4
-            | CheatCodes::WARP_LEVEL5
-            | CheatCodes::WARP_LEVEL6
-            | CheatCodes::WARP_LEVEL7
-            | CheatCodes::WARP_LEVEL8
-            | CheatCodes::WARP_LONGHUNTER
-            | CheatCodes::WARP_MANTIS
-            | CheatCodes::WARP_TREX
-            | CheatCodes::WARP_CAMPAIGNER,
-    );
-    assert_eq!(cm_password, 3669279530);
+// Decrypt the cheat codes from the password.
+// This is the reverse of the encrypt function.
+fn decrypt(bitmask: u32) -> CheatCodes {
+    let bitmask = bitmask ^ 0xA5B4C3D2;
+    let esi = (bitmask >> 0x8) << 0x18;
+    let edx = (bitmask >> 0x8) & 0xFF0000;
+    let dh = (bitmask << 0x8) & 0xFF00;
+    let dl = (bitmask >> 0x10) & 0xFF;
+    let result = esi | edx | dh | dl;
+    CheatCodes::from_bits_truncate(result)
 }
 
 fn main() {
     let cm_password = encrypt(CheatCodes::all());
+    let cheat_codes = decrypt(cm_password);
+    println!("cheat_codes: {:?}", cheat_codes);
     println!("cm_password: {cm_password}");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Test case: All cheat codes unlocked.
+    #[test]
+    fn test_encrypt_all_cheats() {
+        let cm_password = encrypt(CheatCodes::all());
+        assert_eq!(cm_password, 1514913837);
+    }
+
+    // Test case: No cheat codes unlocked.
+    #[test]
+    fn test_encrypt_no_cheats() {
+        let cm_password = encrypt(CheatCodes::empty());
+        assert_eq!(cm_password, 2780087250);
+    }
+
+    // Test case: All warp cheat codes unlocked.
+    #[test]
+    fn test_encrypt_all_warp_cheats() {
+        let cm_password = encrypt(
+            CheatCodes::WARP_LEVEL1
+                | CheatCodes::WARP_LEVEL2
+                | CheatCodes::WARP_LEVEL3
+                | CheatCodes::WARP_LEVEL4
+                | CheatCodes::WARP_LEVEL5
+                | CheatCodes::WARP_LEVEL6
+                | CheatCodes::WARP_LEVEL7
+                | CheatCodes::WARP_LEVEL8
+                | CheatCodes::WARP_LONGHUNTER
+                | CheatCodes::WARP_MANTIS
+                | CheatCodes::WARP_TREX
+                | CheatCodes::WARP_CAMPAIGNER,
+        );
+        assert_eq!(cm_password, 3669279530);
+    }
+
+    // Test case: All cheat codes unlocked.
+    #[test]
+    fn test_decrypt_all_cheats() {
+        let cheat_codes = decrypt(1514913837);
+        assert_eq!(cheat_codes, CheatCodes::all());
+    }
+
+    // Test case: No cheat codes unlocked.
+    #[test]
+    fn test_decrypt_no_cheats() {
+        let cheat_codes = decrypt(2780087250);
+        assert_eq!(cheat_codes, CheatCodes::empty());
+    }
+
+    // Test case: All warp cheat codes unlocked.
+    #[test]
+    fn test_decrypt_all_warp_cheats() {
+        let cheat_codes = decrypt(3669279530);
+        assert_eq!(
+            cheat_codes,
+            CheatCodes::WARP_LEVEL1
+                | CheatCodes::WARP_LEVEL2
+                | CheatCodes::WARP_LEVEL3
+                | CheatCodes::WARP_LEVEL4
+                | CheatCodes::WARP_LEVEL5
+                | CheatCodes::WARP_LEVEL6
+                | CheatCodes::WARP_LEVEL7
+                | CheatCodes::WARP_LEVEL8
+                | CheatCodes::WARP_LONGHUNTER
+                | CheatCodes::WARP_MANTIS
+                | CheatCodes::WARP_TREX
+                | CheatCodes::WARP_CAMPAIGNER
+        );
+    }
 }
