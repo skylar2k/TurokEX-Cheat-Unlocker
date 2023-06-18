@@ -67,11 +67,32 @@ fn test_all_cheats() {
     let cm_password = encrypt(CheatCodes::all());
     assert_eq!(cm_password, 1514913837);
 }
+
 // Test case: No cheat codes unlocked.
 #[test]
 fn test_no_cheats() {
     let cm_password = encrypt(CheatCodes::empty());
     assert_eq!(cm_password, 2780087250);
+}
+
+// Test case: All warp cheat codes unlocked.
+#[test]
+fn test_all_warp_cheats() {
+    let cm_password = encrypt(
+        CheatCodes::WARP_LEVEL1
+            | CheatCodes::WARP_LEVEL2
+            | CheatCodes::WARP_LEVEL3
+            | CheatCodes::WARP_LEVEL4
+            | CheatCodes::WARP_LEVEL5
+            | CheatCodes::WARP_LEVEL6
+            | CheatCodes::WARP_LEVEL7
+            | CheatCodes::WARP_LEVEL8
+            | CheatCodes::WARP_LONGHUNTER
+            | CheatCodes::WARP_MANTIS
+            | CheatCodes::WARP_TREX
+            | CheatCodes::WARP_CAMPAIGNER,
+    );
+    assert_eq!(cm_password, 3669279530);
 }
 
 fn main() {
